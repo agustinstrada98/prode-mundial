@@ -1,16 +1,13 @@
 name: Sync World Cup Results
 
 on:
-  # Corre cada hora entre el 11 de junio y el 16 de agosto (horario del torneo)
   schedule:
     - cron: '0 * * * *'
-  # También se puede disparar manualmente desde la pestaña Actions en GitHub
   workflow_dispatch:
 
 jobs:
   sync:
     runs-on: ubuntu-latest
-    # Solo corre en el repo principal (no en forks)
     if: github.repository_owner == github.actor || github.event_name == 'workflow_dispatch'
 
     steps:
@@ -20,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Run sync
         env:
