@@ -1103,6 +1103,7 @@ function renderAdmin() {
       <button class="subtab ${S.adminTab==='view'?'active':''}" onclick="setAdminTab('view')">👁 Ver Predicciones</button>
       <button class="subtab ${S.adminTab==='specials'?'active':''}" onclick="setAdminTab('specials')">⭐ Especiales Reales</button>
       <button class="subtab ${S.adminTab==='sync'?'active':''}" onclick="setAdminTab('sync')">🔄 Auto-Sync BDL</button>
+      <button class="subtab ${S.adminTab==='users'?'active':''}" onclick="setAdminTab('users')">👥 Participantes</button>
     </div>
     <div id="admin-content">${renderAdminContent()}</div>`;
 }
@@ -1114,6 +1115,7 @@ function renderAdminContent() {
     case 'view': return renderAdminView();
     case 'specials': return renderAdminSpecials();
     case 'sync': return renderAdminSync();
+    case 'users': return renderAdminUsers();
     default: return '';
   }
 }
@@ -1624,6 +1626,58 @@ function renderAdminSync() {
       Agregá el archivo <code style="background:var(--bg2);padding:1px 4px;border-radius:3px">sync.js</code> a tu repo y activá el workflow. Se ejecuta automáticamente cada hora durante el torneo.
     </div>
   </div>`;
+}
+
+
+
+// ==================== ADMIN USERS ====================
+function renderAdminUsers() {
+  const uids = Object.keys(S.users);
+  if (!uids.length) return '<div class="empty-state">No hay participantes registrados.</div>';
+  return `<div class="card">
+    <div class="card-title">👥 Participantes</div>
+    <table class="std-table">
+      <thead><tr>
+        <th>Nombre</th>
+        <th style="text-align:center">Resetear clave</th>
+        <th style="text-align:center">Eliminar</th>
+      </tr></thead>
+      <tbody>${uids.map(uid => `<tr>
+        <td><strong>${esc(S.users[uid]?.name || uid)}</strong></td>
+        <td style="text-align:center">
+          <div style="display:flex;align-items:center;gap:6px;justify-content:center">
+            <input id="newpw_${uid}" type="text" placeholder="Nueva clave" style="width:130px;padding:4px 8px;font-size:12px">
+            <button class="btn-primary btn-sm" onclick="adminResetPassword('${uid}')">Guardar</button>
+            <span id="pwok_${uid}" style="font-size:11px;color:var(--green)"></span>
+          </div>
+        </td>
+        <td style="text-align:center">
+          <button class="btn-red btn-sm" onclick="adminDeleteUser('${uid}','${esc(S.users[uid]?.name||uid)}')">🗑 Eliminar</button>
+        </td>
+      </tr>`).join('')}</tbody>
+    </table>
+  </div>`;
+}
+
+async function adminResetPassword(uid) {
+  const input = document.getElementById(`newpw_${uid}`);
+  const newPass = input?.value?.trim();
+  if (!newPass) { alert('Escribí una clave nueva.'); return; }
+  const salt = genSalt();
+  const hash = hashPass(newPass, salt);
+  await DB.ref(`users/${uid}`).update({ hash, salt });
+  input.value = '';
+  const ok = document.getElementById(`pwok_${uid}`);
+  if (ok) { ok.textContent = '✓ Guardada'; setTimeout(() => { ok.textContent = ''; }, 2000); }
+}
+
+async function adminDeleteUser(uid, name) {
+  if (!confirm(`¿Seguro que querés eliminar a ${name}? Se borran también todas sus predicciones.`)) return;
+  await DB.ref(`users/${uid}`).remove();
+  await DB.ref(`preds/${uid}`).remove();
+  delete S.users[uid];
+  delete S.allPreds[uid];
+  document.getElementById('admin-content').innerHTML = renderAdminContent();
 }
 
 
