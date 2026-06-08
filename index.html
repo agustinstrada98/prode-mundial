@@ -512,6 +512,8 @@ function resolveSlot(slot, useReal, predGroups) {
     return rows[slot.p-1]?.team || label;
   }
   if (slot.t === '3rd') {
+    if (useReal && !S.phase.groupsDone) return `3°${slot.r}`;
+    if (!useReal && !Object.keys(results).length) return `3°${slot.r}`;
     const thirds = getBestThirds(results);
     return thirds[slot.r-1]?.team || `3°${slot.r}`;
   }
