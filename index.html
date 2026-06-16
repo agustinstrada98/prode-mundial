@@ -435,7 +435,7 @@ const S = {
   myPreds: {groups:{}, ko:{}, specials:{}},
   allPreds: {},
   users: {},
-  phase: {groupsDone:false, groupsBonus:false, koDone:false},
+  phase: {groupsDone:false, groupsBonus:false, koDone:false, spEnabled:false},
   writeTimers: {},
 };
 
@@ -629,24 +629,26 @@ function calcAllPts(uid) {
     }
   });
 
-  // Specials
-  const sp = preds.specials || {};
-  const rsp = S.realSp || {};
-  if (rsp.topScorer && sp.topScorer && rsp.topScorer===sp.topScorer) pts.sp+=5;
-  if (rsp.mostGoalsTeam && sp.mostGoalsTeam && rsp.mostGoalsTeam===sp.mostGoalsTeam) pts.sp+=3;
-  if (rsp.mostConcededTeam && sp.mostConcededTeam && rsp.mostConcededTeam===sp.mostConcededTeam) pts.sp+=3;
-  if (rsp.mostRedCards && sp.mostRedCards && rsp.mostRedCards===sp.mostRedCards) pts.sp+=3;
-  if (rsp.injured && sp.injured && rsp.injured===sp.injured) pts.sp+=10;
-  if (rsp.champion && sp.champion && rsp.champion===sp.champion) pts.sp+=15;
-  if (rsp.runnerUp && sp.runnerUp && rsp.runnerUp===sp.runnerUp) pts.sp+=10;
-  if (rsp.third && sp.third && rsp.third===sp.third) pts.sp+=5;
-  // Punto Gol
-  ['pg1','pg2','pg3'].forEach(k => {
-    if (sp[k]) {
-      const goals = (S.realSp.goals||{})[sp[k]] || 0;
-      pts.sp += goals;
-    }
-  });
+  // Specials (sólo se calculan/suman si el admin activó el flag spEnabled)
+  if (S.phase.spEnabled) {
+    const sp = preds.specials || {};
+    const rsp = S.realSp || {};
+    if (rsp.topScorer && sp.topScorer && rsp.topScorer===sp.topScorer) pts.sp+=5;
+    if (rsp.mostGoalsTeam && sp.mostGoalsTeam && rsp.mostGoalsTeam===sp.mostGoalsTeam) pts.sp+=3;
+    if (rsp.mostConcededTeam && sp.mostConcededTeam && rsp.mostConcededTeam===sp.mostConcededTeam) pts.sp+=3;
+    if (rsp.mostRedCards && sp.mostRedCards && rsp.mostRedCards===sp.mostRedCards) pts.sp+=3;
+    if (rsp.injured && sp.injured && rsp.injured===sp.injured) pts.sp+=10;
+    if (rsp.champion && sp.champion && rsp.champion===sp.champion) pts.sp+=15;
+    if (rsp.runnerUp && sp.runnerUp && rsp.runnerUp===sp.runnerUp) pts.sp+=10;
+    if (rsp.third && sp.third && rsp.third===sp.third) pts.sp+=5;
+    // Punto Gol
+    ['pg1','pg2','pg3'].forEach(k => {
+      if (sp[k]) {
+        const goals = (S.realSp.goals||{})[sp[k]] || 0;
+        pts.sp += goals;
+      }
+    });
+  }
 
   pts.total = pts.grp + pts.grpBonus + pts.r32 + pts.r32Bonus + pts.r16 + pts.qf + pts.sf + pts.fin + pts.sp;
   return pts;
@@ -726,7 +728,7 @@ async function loadAllData() {
   // Load real specials
   DB.ref('realSp').on('value', snap => { S.realSp = snap.val() || {}; });
   // Load phase
-  DB.ref('phase').on('value', snap => { S.phase = snap.val() || {groupsDone:false,groupsBonus:false,koDone:false}; });
+  DB.ref('phase').on('value', snap => { S.phase = snap.val() || {groupsDone:false,groupsBonus:false,koDone:false,spEnabled:false}; });
   // Load my preds
   if (uid !== 'admin') {
     DB.ref(`preds/${uid}`).on('value', snap => {
@@ -1189,6 +1191,12 @@ function renderAdminPhase() {
           ${S.phase.koDone?'🔓 Reabrir eliminatoria':'🔒 Cerrar eliminatoria'}
         </button>
         ${S.phase.koDone?'<span class="text-green text-xs">Eliminatoria bloqueada</span>':'<span class="text-muted text-xs">Eliminatoria abierta</span>'}
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn-${S.phase.spEnabled?'red':'green'}" onclick="togglePhase('spEnabled')">
+          ${S.phase.spEnabled?'🔓 Desactivar puntos ESP':'⭐ Activar puntos ESP'}
+        </button>
+        ${S.phase.spEnabled?'<span class="text-green text-xs">ESP se está sumando al ranking</span>':'<span class="text-muted text-xs">ESP en 0 para todos</span>'}
       </div>
     </div>
   </div>`;
