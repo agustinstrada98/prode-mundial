@@ -102,15 +102,6 @@ async function fbPut(path, data) {
   if (!res.ok) throw new Error(`Firebase PUT ${path}: ${res.status}`);
 }
 
-async function fbPatch(path, data) {
-  const res = await fetch(`${FB_URL}/${path}.json?auth=${FB_AUTH}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error(`Firebase PATCH ${path}: ${res.status}`);
-}
-
 async function fbGet(path) {
   const res = await fetch(`${FB_URL}/${path}.json?auth=${FB_AUTH}`);
   if (!res.ok) throw new Error(`Firebase GET ${path}: ${res.status}`);
@@ -167,7 +158,7 @@ async function syncMatches(realGroups, realKO) {
   console.log('[matches] Fetching finished matches from football-data.org...');
   const json = await fdoGet('/competitions/WC/matches?status=FINISHED');
   const matches = json.matches || [];
-  console.log(`[matches] ${matches.length} finished matches`);
+  console.log(`[matches] API returned ${matches.length} finished matches`);
 
   let groupUpdates = 0, koUpdates = 0, skipped = 0;
 
@@ -175,7 +166,9 @@ async function syncMatches(realGroups, realKO) {
     const hRaw = m.homeTeam?.name || m.homeTeam?.shortName || '';
     const aRaw = m.awayTeam?.name || m.awayTeam?.shortName || '';
     const hName = map(hRaw), aName = map(aRaw);
-    if (!hName || !aName) { skipped++; continue; }
+    const tag = `${hRaw}(→${hName}) vs ${aRaw}(→${aName}) | stage=${m.stage} status=${m.status} date=${m.utcDate}`;
+
+    if (!hRaw || !aRaw) { console.warn(`[skip] sin nombres de equipo | ${tag}`); skipped++; continue; }
 
     const score  = m.score || {};
     const ft     = score.fullTime || {};
@@ -193,11 +186,12 @@ async function syncMatches(realGroups, realKO) {
         }
         if (found) break;
       }
-      if (!found) { console.warn(`[groups] unmatched: ${hName} vs ${aName}`); skipped++; continue; }
+      if (!found) { console.warn(`[skip] grupo sin match en GROUPS | ${tag}`); skipped++; continue; }
       const r = found.rev ? {h:result.a,a:result.h} : result;
       await fbPut(`real/groups/${found.id}`, r);
       realGroups[found.id] = r;
       groupUpdates++;
+      console.log(`[ok] groups/${found.id} = ${JSON.stringify(r)} | ${tag}`);
     } else {
       let found = null;
       for (const [kid, slots] of Object.entries(KO_SLOTS)) {
@@ -207,7 +201,7 @@ async function syncMatches(realGroups, realKO) {
         if (mh===hName&&ma===aName) { found={id:kid,rev:false}; break; }
         if (mh===aName&&ma===hName) { found={id:kid,rev:true};  break; }
       }
-      if (!found) { console.warn(`[ko] unmatched: ${hName} vs ${aName} (${m.stage})`); skipped++; continue; }
+      if (!found) { console.warn(`[skip] KO sin slot resuelto todavía (depende de tabla de grupos) | ${tag}`); skipped++; continue; }
       const rev = found.rev;
       const r = rev
         ? { h:result.a, a:result.h, ...(hasPen?{ph:result.pa,pa:result.ph}:{}) }
@@ -215,61 +209,10 @@ async function syncMatches(realGroups, realKO) {
       await fbPut(`real/ko/${found.id}`, r);
       realKO[found.id] = r;
       koUpdates++;
+      console.log(`[ok] ko/${found.id} = ${JSON.stringify(r)} | ${tag}`);
     }
   }
   console.log(`[matches] ✅ Groups: ${groupUpdates}, KO: ${koUpdates}, skipped: ${skipped}`);
-}
-
-async function syncStats(realGroups, realKO) {
-  console.log('[stats] Fetching scorers...');
-  const json = await fdoGet('/competitions/WC/scorers?limit=100');
-  const scorers = json.scorers || [];
-
-  const goals = {};
-  let topPlayer = null, topGoals = -1;
-  scorers.forEach(s => {
-    const name = s.player?.name;
-    if (!name) return;
-    const g = s.goals || 0;
-    if (g > 0) goals[name] = g;
-    if (g > topGoals) { topGoals = g; topPlayer = name; }
-  });
-
-  // Most goals/conceded — calculate from stored results
-  const teamGF = {}, teamGA = {};
-  for (const grp of Object.values(GROUPS)) {
-    for (const m of grp.matches) {
-      const r = realGroups[m.id];
-      if (!r || r.h == null) continue;
-      teamGF[m.h] = (teamGF[m.h]||0) + (+r.h); teamGF[m.a] = (teamGF[m.a]||0) + (+r.a);
-      teamGA[m.h] = (teamGA[m.h]||0) + (+r.a); teamGA[m.a] = (teamGA[m.a]||0) + (+r.h);
-    }
-  }
-  for (const [kid, slots] of Object.entries(KO_SLOTS)) {
-    const r = realKO[kid];
-    if (!r || r.h == null) continue;
-    const ht = resolveSlot(slots.hs, realGroups, realKO);
-    const at = resolveSlot(slots.as, realGroups, realKO);
-    if (!ht || !at) continue;
-    teamGF[ht]=(teamGF[ht]||0)+(+r.h); teamGF[at]=(teamGF[at]||0)+(+r.a);
-    teamGA[ht]=(teamGA[ht]||0)+(+r.a); teamGA[at]=(teamGA[at]||0)+(+r.h);
-  }
-
-  const mostGF = Object.entries(teamGF).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1])[0];
-  const mostGA = Object.entries(teamGA).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1])[0];
-
-  const updates = {};
-  if (topPlayer && topGoals > 0) updates.topScorer = topPlayer;
-  if (Object.keys(goals).length)  updates.goals = goals;
-  if (mostGF) updates.mostGoalsTeam = mostGF[0];
-  if (mostGA) updates.mostConcededTeam = mostGA[0];
-
-  if (Object.keys(updates).length) {
-    await fbPatch('realSp', updates);
-    console.log(`[stats] ✅ topScorer=${updates.topScorer||'-'} (${topGoals}g) | mostGF=${updates.mostGoalsTeam||'-'} | mostGA=${updates.mostConcededTeam||'-'} | ${Object.keys(goals).length} scorers`);
-  } else {
-    console.log('[stats] No stats to update yet (tournament not started?)');
-  }
 }
 
 async function main() {
@@ -278,7 +221,6 @@ async function main() {
   const realGroups = realData.groups || {};
   const realKO     = realData.ko || {};
   await syncMatches(realGroups, realKO);
-  await syncStats(realGroups, realKO);
   console.log('=== Done ===');
 }
 

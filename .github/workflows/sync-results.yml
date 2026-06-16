@@ -1,13 +1,17 @@
 name: Sync World Cup Results
 
 on:
+  # Corre cada 10 min en minutos "raros" (evita la hora en punto, donde GitHub
+  # satura su scheduler y más seguido se saltea ejecuciones programadas)
   schedule:
-    - cron: '0 * * * *'
+    - cron: '3,13,23,33,43,53 * * * *'
+  # También se puede disparar manualmente desde la pestaña Actions en GitHub
   workflow_dispatch:
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+    # Solo corre en el repo principal (no en forks)
     if: github.repository_owner == github.actor || github.event_name == 'workflow_dispatch'
 
     steps:
