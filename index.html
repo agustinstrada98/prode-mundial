@@ -435,7 +435,7 @@ const S = {
   myPreds: {groups:{}, ko:{}, specials:{}},
   allPreds: {},
   users: {},
-  phase: {groupsDone:false, koDone:false},
+  phase: {groupsDone:false, groupsBonus:false, koDone:false},
   writeTimers: {},
 };
 
@@ -576,7 +576,7 @@ function calcAllPts(uid) {
       pts.grp += calcGroupPts(pred, real);
     });
     // Group position bonus (sólo si el usuario predijo al menos un partido del grupo)
-    if (S.phase.groupsDone && hasGroupData(g, preds.groups||{})) {
+    if (S.phase.groupsBonus && hasGroupData(g, preds.groups||{})) {
       const realRows = calcStandings(g, S.real.groups);
       const predRows = calcStandings(g, preds.groups||{});
       if (realRows[0]&&predRows[0]&&realRows[1]&&predRows[1] &&
@@ -726,7 +726,7 @@ async function loadAllData() {
   // Load real specials
   DB.ref('realSp').on('value', snap => { S.realSp = snap.val() || {}; });
   // Load phase
-  DB.ref('phase').on('value', snap => { S.phase = snap.val() || {groupsDone:false,koDone:false}; });
+  DB.ref('phase').on('value', snap => { S.phase = snap.val() || {groupsDone:false,groupsBonus:false,koDone:false}; });
   // Load my preds
   if (uid !== 'admin') {
     DB.ref(`preds/${uid}`).on('value', snap => {
@@ -1174,9 +1174,15 @@ function renderAdminPhase() {
     <div style="display:flex;flex-direction:column;gap:12px;max-width:400px">
       <div style="display:flex;align-items:center;gap:12px">
         <button class="btn-${S.phase.groupsDone?'red':'green'}" onclick="togglePhase('groupsDone')">
-          ${S.phase.groupsDone?'🔓 Reabrir grupos':'✅ Marcar grupos finalizados'}
+          ${S.phase.groupsDone?'🔓 Reabrir grupos':'✅ Bloquear predicciones de grupos'}
         </button>
         ${S.phase.groupsDone?'<span class="text-green text-xs">Grupos bloqueados</span>':'<span class="text-muted text-xs">Grupos abiertos</span>'}
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn-${S.phase.groupsBonus?'red':'green'}" onclick="togglePhase('groupsBonus')">
+          ${S.phase.groupsBonus?'🔓 Desactivar bonus +GRP':'🏅 Activar bonus +GRP'}
+        </button>
+        ${S.phase.groupsBonus?'<span class="text-green text-xs">+GRP se está sumando</span>':'<span class="text-muted text-xs">+GRP en 0 para todos</span>'}
       </div>
       <div style="display:flex;align-items:center;gap:12px">
         <button class="btn-${S.phase.koDone?'red':'green'}" onclick="togglePhase('koDone')">
