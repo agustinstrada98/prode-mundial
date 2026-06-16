@@ -738,10 +738,8 @@ async function loadAllData() {
   }
   // Load users
   DB.ref('users').on('value', snap => { S.users = snap.val() || {}; });
-  // Load all preds for admin
-  if (S.user.isAdmin) {
-    DB.ref('preds').on('value', snap => { S.allPreds = snap.val() || {}; });
-  }
+  // Load all preds (needed by everyone to compute the ranking, not just admin)
+  DB.ref('preds').on('value', snap => { S.allPreds = snap.val() || {}; });
 }
 
 // ==================== RENDER ====================
