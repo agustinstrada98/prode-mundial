@@ -435,7 +435,7 @@ const S = {
   myPreds: {groups:{}, ko:{}, specials:{}},
   allPreds: {},
   users: {},
-  phase: {groupsDone:false, groupsBonus:false, koDone:false, spEnabled:false},
+  phase: {groupsDone:false, groupsBonus:false, koDone:false, spEnabled:false, spDone:false},
   writeTimers: {},
 };
 
@@ -728,7 +728,7 @@ async function loadAllData() {
   // Load real specials
   DB.ref('realSp').on('value', snap => { S.realSp = snap.val() || {}; });
   // Load phase
-  DB.ref('phase').on('value', snap => { S.phase = snap.val() || {groupsDone:false,groupsBonus:false,koDone:false,spEnabled:false}; });
+  DB.ref('phase').on('value', snap => { S.phase = snap.val() || {groupsDone:false,groupsBonus:false,koDone:false,spEnabled:false,spDone:false}; });
   // Load my preds
   if (uid !== 'admin') {
     DB.ref(`preds/${uid}`).on('value', snap => {
@@ -807,7 +807,7 @@ function renderPredsContent() {
 // --- Specials ---
 function renderSpecials() {
   const sp = S.myPreds.specials || {};
-  const locked = S.phase.koDone;
+  const locked = S.phase.spDone;
   const teamOpts = ALL_TEAMS.map(t => `<option value="${esc(t)}" ${sp.champion===t?'selected':''}>${esc(t)}</option>`).join('');
   const teamOptsRU = ALL_TEAMS.map(t => `<option value="${esc(t)}" ${sp.runnerUp===t?'selected':''}>${esc(t)}</option>`).join('');
   const teamOptsThird = ALL_TEAMS.map(t => `<option value="${esc(t)}" ${sp.third===t?'selected':''}>${esc(t)}</option>`).join('');
@@ -1191,6 +1191,12 @@ function renderAdminPhase() {
           ${S.phase.koDone?'🔓 Reabrir eliminatoria':'🔒 Cerrar eliminatoria'}
         </button>
         ${S.phase.koDone?'<span class="text-green text-xs">Eliminatoria bloqueada</span>':'<span class="text-muted text-xs">Eliminatoria abierta</span>'}
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn-${S.phase.spDone?'red':'green'}" onclick="togglePhase('spDone')">
+          ${S.phase.spDone?'🔓 Reabrir especiales':'🔒 Bloquear especiales'}
+        </button>
+        ${S.phase.spDone?'<span class="text-green text-xs">Especiales bloqueados</span>':'<span class="text-muted text-xs">Especiales abiertos</span>'}
       </div>
       <div style="display:flex;align-items:center;gap:12px">
         <button class="btn-${S.phase.spEnabled?'red':'green'}" onclick="togglePhase('spEnabled')">
