@@ -66,7 +66,7 @@ const GROUPS = {
 
 // KO slot definitions — bracket oficial FIFA 2026 (mirrors HTML constants)
 const KO_SLOTS = {
-  r32_01:{hs:{t:'grp',g:'B',p:1},as:{t:'grp',g:'A',p:2}}, // 1°B vs 2°A = Canadá vs Sudáfrica
+  r32_01:{hs:{t:'grp',g:'B',p:2},as:{t:'grp',g:'A',p:2}}, // 2°B vs 2°A = Canadá vs Sudáfrica
   r32_02:{hs:{t:'grp',g:'E',p:1},as:{t:'3rd', g:'D'}},     // 1°E vs 3°D = Alemania vs Paraguay
   r32_03:{hs:{t:'grp',g:'C',p:1},as:{t:'grp',g:'F',p:2}},  // 1°C vs 2°F = Brasil vs Japón
   r32_04:{hs:{t:'grp',g:'F',p:1},as:{t:'grp',g:'C',p:2}},  // 1°F vs 2°C = Países Bajos vs Marruecos
@@ -78,7 +78,7 @@ const KO_SLOTS = {
   r32_10:{hs:{t:'grp',g:'D',p:1},as:{t:'3rd', g:'B'}},     // 1°D vs 3°B = EE.UU. vs Bosnia y Herz.
   r32_11:{hs:{t:'grp',g:'H',p:1},as:{t:'grp',g:'J',p:2}},  // 1°H vs 2°J = España vs Austria
   r32_12:{hs:{t:'grp',g:'K',p:2},as:{t:'grp',g:'L',p:2}},  // 2°K vs 2°L = Portugal vs Croacia
-  r32_13:{hs:{t:'grp',g:'B',p:2},as:{t:'3rd', g:'J'}},     // 2°B vs 3°J = Suiza vs Argelia
+  r32_13:{hs:{t:'grp',g:'B',p:1},as:{t:'3rd', g:'J'}},     // 1°B vs 3°J = Suiza vs Argelia
   r32_14:{hs:{t:'grp',g:'K',p:1},as:{t:'3rd', g:'L'}},     // 1°K vs 3°L = Colombia vs Ghana
   r32_15:{hs:{t:'grp',g:'J',p:1},as:{t:'grp',g:'H',p:2}},  // 1°J vs 2°H = Argentina vs Cabo Verde
   r32_16:{hs:{t:'grp',g:'D',p:2},as:{t:'grp',g:'G',p:2}},  // 2°D vs 2°G = Australia vs Egipto
