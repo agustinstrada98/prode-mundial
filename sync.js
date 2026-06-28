@@ -64,24 +64,40 @@ const GROUPS = {
   L:{matches:[{id:'L1',h:'Ghana',a:'Panamá'},{id:'L2',h:'Inglaterra',a:'Croacia'},{id:'L3',h:'Inglaterra',a:'Ghana'},{id:'L4',h:'Panamá',a:'Croacia'},{id:'L5',h:'Croacia',a:'Ghana'},{id:'L6',h:'Panamá',a:'Inglaterra'}]},
 };
 
-// KO slot definitions (mirrors HTML constants)
+// KO slot definitions — bracket oficial FIFA 2026 (mirrors HTML constants)
 const KO_SLOTS = {
-  r32_01:{hs:{t:'grp',g:'A',p:1},as:{t:'grp',g:'B',p:2}}, r32_02:{hs:{t:'grp',g:'C',p:1},as:{t:'grp',g:'D',p:2}},
-  r32_03:{hs:{t:'grp',g:'E',p:1},as:{t:'grp',g:'F',p:2}}, r32_04:{hs:{t:'grp',g:'G',p:1},as:{t:'grp',g:'H',p:2}},
-  r32_05:{hs:{t:'grp',g:'I',p:1},as:{t:'grp',g:'J',p:2}}, r32_06:{hs:{t:'grp',g:'K',p:1},as:{t:'grp',g:'L',p:2}},
-  r32_07:{hs:{t:'grp',g:'B',p:1},as:{t:'grp',g:'A',p:2}}, r32_08:{hs:{t:'grp',g:'D',p:1},as:{t:'grp',g:'C',p:2}},
-  r32_09:{hs:{t:'grp',g:'F',p:1},as:{t:'grp',g:'E',p:2}}, r32_10:{hs:{t:'grp',g:'H',p:1},as:{t:'grp',g:'G',p:2}},
-  r32_11:{hs:{t:'grp',g:'J',p:1},as:{t:'grp',g:'I',p:2}}, r32_12:{hs:{t:'grp',g:'L',p:1},as:{t:'grp',g:'K',p:2}},
-  r32_13:{hs:{t:'3rd',r:1},as:{t:'3rd',r:2}}, r32_14:{hs:{t:'3rd',r:3},as:{t:'3rd',r:4}},
-  r32_15:{hs:{t:'3rd',r:5},as:{t:'3rd',r:6}}, r32_16:{hs:{t:'3rd',r:7},as:{t:'3rd',r:8}},
-  r16_01:{hs:{t:'ko',m:'r32_01'},as:{t:'ko',m:'r32_02'}}, r16_02:{hs:{t:'ko',m:'r32_03'},as:{t:'ko',m:'r32_04'}},
-  r16_03:{hs:{t:'ko',m:'r32_05'},as:{t:'ko',m:'r32_06'}}, r16_04:{hs:{t:'ko',m:'r32_07'},as:{t:'ko',m:'r32_08'}},
-  r16_05:{hs:{t:'ko',m:'r32_09'},as:{t:'ko',m:'r32_10'}}, r16_06:{hs:{t:'ko',m:'r32_11'},as:{t:'ko',m:'r32_12'}},
-  r16_07:{hs:{t:'ko',m:'r32_13'},as:{t:'ko',m:'r32_14'}}, r16_08:{hs:{t:'ko',m:'r32_15'},as:{t:'ko',m:'r32_16'}},
-  qf_01:{hs:{t:'ko',m:'r16_01'},as:{t:'ko',m:'r16_02'}}, qf_02:{hs:{t:'ko',m:'r16_03'},as:{t:'ko',m:'r16_04'}},
-  qf_03:{hs:{t:'ko',m:'r16_05'},as:{t:'ko',m:'r16_06'}}, qf_04:{hs:{t:'ko',m:'r16_07'},as:{t:'ko',m:'r16_08'}},
-  sf_01:{hs:{t:'ko',m:'qf_01'},as:{t:'ko',m:'qf_02'}},    sf_02:{hs:{t:'ko',m:'qf_03'},as:{t:'ko',m:'qf_04'}},
-  third:{hs:{t:'koL',m:'sf_01'},as:{t:'koL',m:'sf_02'}},  final:{hs:{t:'ko',m:'sf_01'},as:{t:'ko',m:'sf_02'}},
+  r32_01:{hs:{t:'grp',g:'B',p:1},as:{t:'grp',g:'A',p:2}}, // 1°B vs 2°A = Canadá vs Sudáfrica
+  r32_02:{hs:{t:'grp',g:'E',p:1},as:{t:'3rd', g:'D'}},     // 1°E vs 3°D = Alemania vs Paraguay
+  r32_03:{hs:{t:'grp',g:'C',p:1},as:{t:'grp',g:'F',p:2}},  // 1°C vs 2°F = Brasil vs Japón
+  r32_04:{hs:{t:'grp',g:'F',p:1},as:{t:'grp',g:'C',p:2}},  // 1°F vs 2°C = Países Bajos vs Marruecos
+  r32_05:{hs:{t:'grp',g:'E',p:2},as:{t:'grp',g:'I',p:2}},  // 2°E vs 2°I = Costa de Marfil vs Noruega
+  r32_06:{hs:{t:'grp',g:'I',p:1},as:{t:'3rd', g:'F'}},     // 1°I vs 3°F = Francia vs Suecia
+  r32_07:{hs:{t:'grp',g:'A',p:1},as:{t:'3rd', g:'E'}},     // 1°A vs 3°E = México vs Ecuador
+  r32_08:{hs:{t:'grp',g:'L',p:1},as:{t:'3rd', g:'K'}},     // 1°L vs 3°K = Inglaterra vs RD Congo
+  r32_09:{hs:{t:'grp',g:'G',p:1},as:{t:'3rd', g:'I'}},     // 1°G vs 3°I = Bélgica vs Senegal
+  r32_10:{hs:{t:'grp',g:'D',p:1},as:{t:'3rd', g:'B'}},     // 1°D vs 3°B = EE.UU. vs Bosnia y Herz.
+  r32_11:{hs:{t:'grp',g:'H',p:1},as:{t:'grp',g:'J',p:2}},  // 1°H vs 2°J = España vs Austria
+  r32_12:{hs:{t:'grp',g:'K',p:2},as:{t:'grp',g:'L',p:2}},  // 2°K vs 2°L = Portugal vs Croacia
+  r32_13:{hs:{t:'grp',g:'B',p:2},as:{t:'3rd', g:'J'}},     // 2°B vs 3°J = Suiza vs Argelia
+  r32_14:{hs:{t:'grp',g:'K',p:1},as:{t:'3rd', g:'L'}},     // 1°K vs 3°L = Colombia vs Ghana
+  r32_15:{hs:{t:'grp',g:'J',p:1},as:{t:'grp',g:'H',p:2}},  // 1°J vs 2°H = Argentina vs Cabo Verde
+  r32_16:{hs:{t:'grp',g:'D',p:2},as:{t:'grp',g:'G',p:2}},  // 2°D vs 2°G = Australia vs Egipto
+  r16_01:{hs:{t:'ko',m:'r32_02'},as:{t:'ko',m:'r32_05'}},   // W(Alem/Par) vs W(CdM/Nor)
+  r16_02:{hs:{t:'ko',m:'r32_01'},as:{t:'ko',m:'r32_03'}},   // W(Can/SA) vs W(Bra/Jap)
+  r16_03:{hs:{t:'ko',m:'r32_04'},as:{t:'ko',m:'r32_06'}},   // W(PB/Mar) vs W(Fra/Sue)
+  r16_04:{hs:{t:'ko',m:'r32_07'},as:{t:'ko',m:'r32_08'}},   // W(Méx/Ecu) vs W(Ing/RDC)
+  r16_05:{hs:{t:'ko',m:'r32_11'},as:{t:'ko',m:'r32_12'}},   // W(Esp/Aut) vs W(Por/Cro)
+  r16_06:{hs:{t:'ko',m:'r32_09'},as:{t:'ko',m:'r32_10'}},   // W(Bel/Sen) vs W(EEU/Bos)
+  r16_07:{hs:{t:'ko',m:'r32_14'},as:{t:'ko',m:'r32_16'}},   // W(Col/Gha) vs W(Aus/Egi)
+  r16_08:{hs:{t:'ko',m:'r32_13'},as:{t:'ko',m:'r32_15'}},   // W(Sui/Alg) vs W(Arg/CabV)
+  qf_01:{hs:{t:'ko',m:'r16_01'},as:{t:'ko',m:'r16_02'}},
+  qf_02:{hs:{t:'ko',m:'r16_05'},as:{t:'ko',m:'r16_06'}},
+  qf_03:{hs:{t:'ko',m:'r16_03'},as:{t:'ko',m:'r16_04'}},
+  qf_04:{hs:{t:'ko',m:'r16_07'},as:{t:'ko',m:'r16_08'}},
+  sf_01:{hs:{t:'ko',m:'qf_01'},as:{t:'ko',m:'qf_02'}},
+  sf_02:{hs:{t:'ko',m:'qf_03'},as:{t:'ko',m:'qf_04'}},
+  third:{hs:{t:'koL',m:'sf_01'},as:{t:'koL',m:'sf_02'}},
+  final:{hs:{t:'ko',m:'sf_01'},as:{t:'ko',m:'sf_02'}},
 };
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -129,11 +145,9 @@ function resolveSlot(slot, realGroups, realKO) {
     return rows[slot.p-1]?.team || null;
   }
   if (slot.t === '3rd') {
-    const thirds = Object.entries(GROUPS).map(([g, grp]) => {
-      const rows = standings(grp.matches, realGroups);
-      return rows[2] ? { ...rows[2], group:g } : null;
-    }).filter(Boolean).sort((a,b)=>b.pts-a.pts||b.dg-a.dg||b.gf-a.gf);
-    return thirds[slot.r-1]?.team || null;
+    const grp = GROUPS[slot.g];
+    const rows = grp ? standings(grp.matches, realGroups) : [];
+    return rows[2]?.team || null;
   }
   if (slot.t === 'ko' || slot.t === 'koL') {
     const r = realKO[slot.m];
