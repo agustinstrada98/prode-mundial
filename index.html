@@ -1122,7 +1122,8 @@ function renderAdmin() {
     <div class="admin-tabs">
       <button class="subtab ${S.adminTab==='results'?'active':''}" onclick="setAdminTab('results')">📥 Cargar Resultados</button>
       <button class="subtab ${S.adminTab==='phase'?'active':''}" onclick="setAdminTab('phase')">🚦 Fases</button>
-      <button class="subtab ${S.adminTab==='view'?'active':''}" onclick="setAdminTab('view')">👁 Ver Predicciones</button>
+      <button class="subtab ${S.adminTab==='preds'?'active':''}" onclick="setAdminTab('preds')">📋 Predicciones</button>
+      <button class="subtab ${S.adminTab==='view'?'active':''}" onclick="setAdminTab('view')">👁 Especiales</button>
       <button class="subtab ${S.adminTab==='specials'?'active':''}" onclick="setAdminTab('specials')">⭐ Especiales Reales</button>
       <button class="subtab ${S.adminTab==='sync'?'active':''}" onclick="setAdminTab('sync')">🔄 Auto-Sync BDL</button>
       <button class="subtab ${S.adminTab==='users'?'active':''}" onclick="setAdminTab('users')">👥 Participantes</button>
@@ -1134,6 +1135,7 @@ function renderAdminContent() {
   switch(S.adminTab) {
     case 'results': return renderAdminResults();
     case 'phase': return renderAdminPhase();
+    case 'preds': return renderAdminPreds();
     case 'view': return renderAdminView();
     case 'specials': return renderAdminSpecials();
     case 'sync': return renderAdminSync();
@@ -1289,6 +1291,102 @@ function renderAdminView() {
         `<div style="background:var(--bg3);border-radius:6px;padding:8px"><div style="font-size:11px;color:var(--text2)">${k}</div><div>${v?`${flag(v)} ${esc(v)}`:'-'}</div></div>`).join('')}
     </div></div>`;
   
+  return html;
+}
+
+function renderAdminPreds() {
+  const uids = Object.keys(S.users);
+  if (!uids.length) return '<div class="empty-state">No hay participantes.</div>';
+  if (!S.adminPredsPhase) S.adminPredsPhase = 'grp_A';
+
+  const grpPhases = Object.keys(GROUPS).map(g => ({v:`grp_${g}`, l:`Grupo ${g}`}));
+  const koPhases = [
+    {v:'R32', l:'Ronda de 32'},
+    {v:'R16', l:'Octavos'},
+    {v:'QF', l:'Cuartos'},
+    {v:'SF', l:'Semis'},
+    {v:'3P', l:'3er Puesto'},
+    {v:'FIN', l:'Final'},
+  ];
+  const allPhases = [...grpPhases, ...koPhases];
+
+  const names = uids.map(uid => S.users[uid]?.name || uid);
+
+  let html = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+    ${allPhases.map(o=>`<button class="subtab ${S.adminPredsPhase===o.v?'active':''}" onclick="S.adminPredsPhase='${o.v}';updateAdminContent()">${o.l}</button>`).join('')}
+  </div>`;
+
+  const thStyle = 'padding:5px 8px;font-size:11px;font-weight:600;color:var(--text2);border-bottom:2px solid var(--border);text-align:center;white-space:nowrap';
+  const tdStyle = 'padding:5px 8px;font-size:12px;text-align:center;border-bottom:1px solid var(--border)';
+  const tdLeft = 'padding:5px 8px;font-size:12px;border-bottom:1px solid var(--border);white-space:nowrap';
+
+  if (S.adminPredsPhase.startsWith('grp_')) {
+    const g = S.adminPredsPhase.replace('grp_', '');
+    const grp = GROUPS[g];
+    if (!grp) return html + '<div class="empty-state">Grupo no encontrado.</div>';
+
+    html += `<div class="card" style="overflow-x:auto"><table class="std-table" style="min-width:500px;width:100%">
+      <thead><tr>
+        <th style="${thStyle};text-align:left">Partido</th>
+        <th style="${thStyle}">Real</th>
+        ${names.map(n=>`<th style="${thStyle}">${esc(n)}</th>`).join('')}
+      </tr></thead><tbody>`;
+
+    grp.matches.forEach(m => {
+      const real = S.real.groups[m.id];
+      const realStr = real?.h !== undefined ? `${real.h}-${real.a}` : '—';
+      html += `<tr>
+        <td style="${tdLeft}">${m.h} vs ${m.a}</td>
+        <td style="${tdStyle};font-weight:600;color:var(--green)">${realStr}</td>
+        ${uids.map(uid => {
+          const pred = ((S.allPreds[uid]||{}).groups||{})[m.id];
+          if (!pred || pred.h === undefined || pred.h === '') return `<td style="${tdStyle};color:var(--text3)">—</td>`;
+          const pStr = `${pred.h}-${pred.a}`;
+          const correct = real && String(pred.h)===String(real.h) && String(pred.a)===String(real.a);
+          const sign = real && !correct && ((+pred.h>+pred.a&&+real.h>+real.a)||(+pred.h<+pred.a&&+real.h<+real.a)||(+pred.h===+pred.a&&+real.h===+real.a));
+          const color = correct ? 'var(--green)' : sign ? 'var(--yellow,#e3b341)' : 'var(--text)';
+          return `<td style="${tdStyle};color:${color};font-weight:${correct?'700':'400'}">${pStr}</td>`;
+        }).join('')}
+      </tr>`;
+    });
+
+    html += '</tbody></table></div>';
+  } else {
+    const round = S.adminPredsPhase;
+    const matches = KO_MATCHES.filter(m => m.round === round);
+    if (!matches.length) return html + '<div class="empty-state">No hay partidos para esta etapa.</div>';
+
+    html += `<div class="card" style="overflow-x:auto"><table class="std-table" style="min-width:500px;width:100%">
+      <thead><tr>
+        <th style="${thStyle};text-align:left">Partido</th>
+        <th style="${thStyle}">Real</th>
+        ${names.map(n=>`<th style="${thStyle}">${esc(n)}</th>`).join('')}
+      </tr></thead><tbody>`;
+
+    matches.forEach(m => {
+      const real = S.real.ko[m.id];
+      const hName = S.phase.groupsDone ? (resolveSlot(m.hs, true, null)||'?') : resolveSlot(m.hs, false, {});
+      const aName = S.phase.groupsDone ? (resolveSlot(m.as, true, null)||'?') : resolveSlot(m.as, false, {});
+      const realStr = real?.h !== undefined ? `${real.h}-${real.a}${real.ph!==undefined?` (p:${real.ph}-${real.pa})`:''}` : '—';
+      html += `<tr>
+        <td style="${tdLeft}">${shortTeam(hName)} vs ${shortTeam(aName)}<br><span style="font-size:10px;color:var(--text3)">${fmtDate(m.date)} ${m.time}</span></td>
+        <td style="${tdStyle};font-weight:600;color:var(--green)">${realStr}</td>
+        ${uids.map(uid => {
+          const pred = ((S.allPreds[uid]||{}).ko||{})[m.id];
+          if (!pred || pred.h === undefined || pred.h === '') return `<td style="${tdStyle};color:var(--text3)">—</td>`;
+          const pStr = `${pred.h}-${pred.a}`;
+          const correct = real && String(pred.h)===String(real.h) && String(pred.a)===String(real.a);
+          const sign = real && !correct && ((+pred.h>+pred.a&&+real.h>+real.a)||(+pred.h<+pred.a&&+real.h<+real.a)||(+pred.h===+pred.a&&+real.h===+real.a));
+          const advStr = pred.adv ? ` →${pred.adv==='h'?shortTeam(hName):shortTeam(aName)}` : '';
+          const color = correct ? 'var(--green)' : sign ? 'var(--yellow,#e3b341)' : 'var(--text)';
+          return `<td style="${tdStyle};color:${color};font-weight:${correct?'700':'400'}">${pStr}${advStr}</td>`;
+        }).join('')}
+      </tr>`;
+    });
+
+    html += '</tbody></table></div>';
+  }
+
   return html;
 }
 
