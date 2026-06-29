@@ -607,29 +607,25 @@ function calcAllPts(uid) {
     const predWin = resolveSlot({t:'ko',m:m.id}, false, preds.groups||{});
     // Overwrite for pred-based resolution using preds.ko for this match
     // We need a custom resolve here using preds
-    const predKOReal = preds.ko||{};
-    const predR = predKOReal[m.id];
-    let predWinner = '?';
+    const predR = (preds.ko||{})[m.id];
+    // Comparar qué LADO ganó (h o a) para evitar errores de nombres entre pred/real
+    let predSide = '?';
     if (predR && predR.h!==undefined && predR.h!=='') {
       const prh=parseInt(predR.h),pra=parseInt(predR.a);
       if(!isNaN(prh)&&!isNaN(pra)) {
-        const hteam = resolveSlotForUser(m.hs, uid);
-        const ateam = resolveSlotForUser(m.as, uid);
-        if(prh!==pra) predWinner = prh>pra?hteam:ateam;
-        else { const pph=parseInt(predR.ph),ppa=parseInt(predR.pa); predWinner=(!isNaN(pph)&&!isNaN(ppa))?(pph>ppa?hteam:ateam):'?'; }
+        if(prh!==pra) predSide = prh>pra?'h':'a';
+        else predSide = predR.adv||'?';
       }
     }
-    let realWinner = '?';
+    let realSide = '?';
     if (real.h!==undefined&&real.h!=='') {
       const rrh=parseInt(real.h),rra=parseInt(real.a);
       if(!isNaN(rrh)&&!isNaN(rra)) {
-        const hteam = resolveSlot(m.hs, true, null);
-        const ateam = resolveSlot(m.as, true, null);
-        if(rrh!==rra) realWinner=rrh>rra?hteam:ateam;
-        else { const rph=parseInt(real.ph),rpa=parseInt(real.pa); realWinner=(!isNaN(rph)&&!isNaN(rpa))?(rph>rpa?hteam:ateam):'?'; }
+        if(rrh!==rra) realSide = rrh>rra?'h':'a';
+        else { const rph=parseInt(real.ph),rpa=parseInt(real.pa); realSide=(!isNaN(rph)&&!isNaN(rpa))?(rph>rpa?'h':'a'):'?'; }
       }
     }
-    const advBonus = (m.round!=='FIN'&&m.round!=='3P'&&predWinner!=='?'&&realWinner!=='?'&&predWinner===realWinner)?1:0;
+    const advBonus = (m.round!=='FIN'&&m.round!=='3P'&&predSide!=='?'&&realSide!=='?'&&predSide===realSide)?1:0;
     switch(m.round) {
       case 'R32': pts.r32 += p; pts.r32Bonus += advBonus; break;
       case 'R16': pts.r16 += p + advBonus; break;
@@ -674,8 +670,8 @@ function resolveSlotForUser(slot, uid) {
     return rows[slot.p-1]?.team || `${slot.g}${slot.p}`;
   }
   if (slot.t === '3rd') {
-    const thirds = getBestThirds(predGroups);
-    return thirds[slot.r-1]?.team || `3°${slot.r}`;
+    const rows = calcStandings(slot.g, predGroups);
+    return rows[2]?.team || `3°Gr.${slot.g}`;
   }
   if (slot.t === 'ko' || slot.t === 'koL') {
     const m = KO_MATCHES.find(x => x.id === slot.m);
@@ -1015,11 +1011,13 @@ function renderKOPreds() {
         ${hasReal?`<span class="real-score">${real.h}-${real.a}${real.ph!==undefined?` (${real.ph}-${real.pa} p)`:''}</span>`:`<span class="match-date">${fmtDate(m.date)} ${m.time}${locked&&!hasReal?' 🔒':''}</span>`}
         ${hasReal&&pred.h!==undefined?`<span class="result-badge ${pts>=5||pts===3?'badge-exact':pts>=2||pts===1?'badge-sign':'badge-pts'}">${pts}pts</span>`:''}
       </div>
-      ${isDraw&&m.round!=='3P'?`<div class="pen-wrap">
-        Penales:
-        <input type="number" min="0" max="99" class="pen-inp" ${disAttr} placeholder="?" value="${pred.ph!==undefined?pred.ph:''}" oninput="saveKO('${id}','ph',this.value)">
-        -
-        <input type="number" min="0" max="99" class="pen-inp" ${disAttr} placeholder="?" value="${pred.pa!==undefined?pred.pa:''}" oninput="saveKO('${id}','pa',this.value)">
+      ${isDraw&&m.round!=='3P'?`<div class="pen-wrap" style="display:flex;align-items:center;gap:8px;padding:4px 0 4px 8px;font-size:12px;color:var(--text2)">
+        ¿Quién pasa?
+        <select class="pen-inp" style="width:auto;padding:3px 6px" ${disAttr} onchange="saveKO('${id}','adv',this.value)">
+          <option value="" ${!pred.adv?'selected':''}>— elegir —</option>
+          <option value="h" ${pred.adv==='h'?'selected':''}>${shortTeam(hName)}</option>
+          <option value="a" ${pred.adv==='a'?'selected':''}>${shortTeam(aName)}</option>
+        </select>
       </div>`:''}`;
     });
     html += `</div>`;
