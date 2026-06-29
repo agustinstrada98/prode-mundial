@@ -538,6 +538,17 @@ function resolveSlot(slot, useReal, predGroups) {
   return '?';
 }
 
+// Devuelve true si el partido ya cerró predicciones (10 min antes del kickoff o después)
+// Los horarios en KO_MATCHES están en hora Argentina (ART = UTC-3)
+function isMatchLocked(m) {
+  if (S.phase.koDone) return true;
+  if (!m || !m.date || !m.time) return false;
+  const [y,mo,d] = m.date.split('-').map(Number);
+  const [h,min] = m.time.split(':').map(Number);
+  const kickoffUTC = Date.UTC(y, mo-1, d, h+3, min); // ART→UTC: +3h
+  return Date.now() >= kickoffUTC - 10*60*1000;
+}
+
 function getSign(h,a){return h>a?'H':a>h?'A':'D';}
 
 // ==================== POINTS ====================
@@ -741,6 +752,13 @@ async function loadAllData() {
   DB.ref('users').on('value', snap => { S.users = snap.val() || {}; });
   // Load all preds (needed by everyone to compute the ranking, not just admin)
   DB.ref('preds').on('value', snap => { S.allPreds = snap.val() || {}; });
+  // Auto-refresh KO preds panel cada 60s para que el lock aparezca sin recargar la página
+  setInterval(() => {
+    if (S.subTab === 'ko') {
+      const el = document.getElementById('preds-content');
+      if (el) el.innerHTML = renderKOPreds();
+    }
+  }, 60000);
 }
 
 // ==================== RENDER ====================
@@ -948,7 +966,6 @@ function renderStandingsTable(rows, isReal) {
 
 // --- KO Predictions ---
 function renderKOPreds() {
-  const locked = S.phase.koDone;
   const rounds = [
     {ids:['r32_01','r32_02','r32_03','r32_04','r32_05','r32_06','r32_07','r32_08','r32_09','r32_10','r32_11','r32_12','r32_13','r32_14','r32_15','r32_16'],label:'Ronda de 32'},
     {ids:['r16_01','r16_02','r16_03','r16_04','r16_05','r16_06','r16_07','r16_08'],label:'Octavos de Final'},
@@ -963,6 +980,7 @@ function renderKOPreds() {
     ids.forEach(id => {
       const m = KO_MATCHES.find(x=>x.id===id);
       if (!m) return;
+      const locked = isMatchLocked(m);
       const pred = (S.myPreds.ko||{})[id]||{};
       const real = S.real.ko[id];
       const isDraw = (pred.h!==undefined&&pred.h!==''&&pred.a!==undefined&&pred.a!=='') &&
@@ -977,30 +995,31 @@ function renderKOPreds() {
       const aDiff = aReal&&aPred&&aReal!==aPred;
       const hasReal = real&&real.h!==undefined&&real.h!=='';
       const pts = hasReal?calcKOPts(pred,real,m.round):null;
+      const disAttr = locked ? 'disabled' : '';
       html += `<div class="match-row">
         <div class="match-team">
           ${flag(hName)}<span class="name ${S.phase.groupsDone&&hReal?'text-green':'text-blue'}">${shortTeam(hName)}</span>
           ${hDiff&&!locked?`<span class="was-pred">(pred: ${shortTeam(hPred)})</span>`:''}
         </div>
-        <input type="number" min="0" max="99" class="score-inp" ${locked?'disabled':''} placeholder="-"
+        <input type="number" min="0" max="99" class="score-inp" ${disAttr} placeholder="-"
           value="${pred.h!==undefined?pred.h:''}"
           oninput="saveKO('${id}','h',this.value)">
         <span class="score-sep">-</span>
-        <input type="number" min="0" max="99" class="score-inp" ${locked?'disabled':''} placeholder="-"
+        <input type="number" min="0" max="99" class="score-inp" ${disAttr} placeholder="-"
           value="${pred.a!==undefined?pred.a:''}"
           oninput="saveKO('${id}','a',this.value)">
         <div class="match-team away">
           ${aDiff&&!locked?`<span class="was-pred">(pred: ${shortTeam(aPred)})</span>`:''}
           <span class="name ${S.phase.groupsDone&&aReal?'text-green':'text-blue'}">${shortTeam(aName)}</span>${flag(aName)}
         </div>
-        ${hasReal?`<span class="real-score">${real.h}-${real.a}${real.ph!==undefined?` (${real.ph}-${real.pa} p)`:''}</span>`:`<span class="match-date">${fmtDate(m.date)} ${m.time}</span>`}
+        ${hasReal?`<span class="real-score">${real.h}-${real.a}${real.ph!==undefined?` (${real.ph}-${real.pa} p)`:''}</span>`:`<span class="match-date">${fmtDate(m.date)} ${m.time}${locked&&!hasReal?' 🔒':''}</span>`}
         ${hasReal&&pred.h!==undefined?`<span class="result-badge ${pts>=5||pts===3?'badge-exact':pts>=2||pts===1?'badge-sign':'badge-pts'}">${pts}pts</span>`:''}
       </div>
       ${isDraw&&m.round!=='3P'?`<div class="pen-wrap">
         Penales:
-        <input type="number" min="0" max="99" class="pen-inp" ${locked?'disabled':''} placeholder="?" value="${pred.ph!==undefined?pred.ph:''}" oninput="saveKO('${id}','ph',this.value)">
+        <input type="number" min="0" max="99" class="pen-inp" ${disAttr} placeholder="?" value="${pred.ph!==undefined?pred.ph:''}" oninput="saveKO('${id}','ph',this.value)">
         -
-        <input type="number" min="0" max="99" class="pen-inp" ${locked?'disabled':''} placeholder="?" value="${pred.pa!==undefined?pred.pa:''}" oninput="saveKO('${id}','pa',this.value)">
+        <input type="number" min="0" max="99" class="pen-inp" ${disAttr} placeholder="?" value="${pred.pa!==undefined?pred.pa:''}" oninput="saveKO('${id}','pa',this.value)">
       </div>`:''}`;
     });
     html += `</div>`;
@@ -1365,6 +1384,8 @@ function savePred(type, matchId, side, value, groupId) {
 }
 
 function saveKO(matchId, side, value) {
+  const mObj = KO_MATCHES.find(x=>x.id===matchId);
+  if (isMatchLocked(mObj)) return;
   if (!S.myPreds.ko) S.myPreds.ko = {};
   if (!S.myPreds.ko[matchId]) S.myPreds.ko[matchId] = {};
   S.myPreds.ko[matchId][side] = value;
