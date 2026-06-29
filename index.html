@@ -332,8 +332,8 @@ const GROUPS = {
 const KO_MATCHES = [
   // RONDA DE 32 — 28 jun a 3 jul (bracket oficial FIFA 2026)
   {id:'r32_01',round:'R32',date:'2026-06-28',time:'16:00',hs:{t:'grp',g:'B',p:2},as:{t:'grp',g:'A',p:2}},  // 2°B vs 2°A = Canadá vs Sudáfrica
-  {id:'r32_02',round:'R32',date:'2026-06-29',time:'14:00',hs:{t:'grp',g:'E',p:1},as:{t:'3rd', g:'D'}},      // 1°E vs 3°D = Alemania vs Paraguay
-  {id:'r32_03',round:'R32',date:'2026-06-29',time:'17:30',hs:{t:'grp',g:'C',p:1},as:{t:'grp',g:'F',p:2}},  // 1°C vs 2°F = Brasil vs Japón
+  {id:'r32_02',round:'R32',date:'2026-06-29',time:'17:30',hs:{t:'grp',g:'E',p:1},as:{t:'3rd', g:'D'}},      // 1°E vs 3°D = Alemania vs Paraguay
+  {id:'r32_03',round:'R32',date:'2026-06-29',time:'14:00',hs:{t:'grp',g:'C',p:1},as:{t:'grp',g:'F',p:2}},  // 1°C vs 2°F = Brasil vs Japón
   {id:'r32_04',round:'R32',date:'2026-06-29',time:'22:00',hs:{t:'grp',g:'F',p:1},as:{t:'grp',g:'C',p:2}},  // 1°F vs 2°C = Países Bajos vs Marruecos
   {id:'r32_05',round:'R32',date:'2026-06-30',time:'14:00',hs:{t:'grp',g:'E',p:2},as:{t:'grp',g:'I',p:2}},  // 2°E vs 2°I = Costa de Marfil vs Noruega
   {id:'r32_06',round:'R32',date:'2026-06-30',time:'18:00',hs:{t:'grp',g:'I',p:1},as:{t:'3rd', g:'F'}},      // 1°I vs 3°F = Francia vs Suecia
@@ -343,31 +343,31 @@ const KO_MATCHES = [
   {id:'r32_10',round:'R32',date:'2026-07-01',time:'21:00',hs:{t:'grp',g:'D',p:1},as:{t:'3rd', g:'B'}},      // 1°D vs 3°B = EE.UU. vs Bosnia y Herz.
   {id:'r32_11',round:'R32',date:'2026-07-02',time:'16:00',hs:{t:'grp',g:'H',p:1},as:{t:'grp',g:'J',p:2}},  // 1°H vs 2°J = España vs Austria
   {id:'r32_12',round:'R32',date:'2026-07-02',time:'20:00',hs:{t:'grp',g:'K',p:2},as:{t:'grp',g:'L',p:2}},  // 2°K vs 2°L = Portugal vs Croacia
-  {id:'r32_13',round:'R32',date:'2026-07-02',time:'00:30',hs:{t:'grp',g:'B',p:1},as:{t:'3rd', g:'J'}},      // 1°B vs 3°J = Suiza vs Argelia
-  {id:'r32_14',round:'R32',date:'2026-07-03',time:'16:00',hs:{t:'grp',g:'K',p:1},as:{t:'3rd', g:'L'}},      // 1°K vs 3°L = Colombia vs Ghana
+  {id:'r32_13',round:'R32',date:'2026-07-03',time:'00:00',hs:{t:'grp',g:'B',p:1},as:{t:'3rd', g:'J'}},      // 1°B vs 3°J = Suiza vs Argelia
+  {id:'r32_14',round:'R32',date:'2026-07-03',time:'22:30',hs:{t:'grp',g:'K',p:1},as:{t:'3rd', g:'L'}},      // 1°K vs 3°L = Colombia vs Ghana
   {id:'r32_15',round:'R32',date:'2026-07-03',time:'19:00',hs:{t:'grp',g:'J',p:1},as:{t:'grp',g:'H',p:2}},  // 1°J vs 2°H = Argentina vs Cabo Verde
-  {id:'r32_16',round:'R32',date:'2026-07-03',time:'22:00',hs:{t:'grp',g:'D',p:2},as:{t:'grp',g:'G',p:2}},  // 2°D vs 2°G = Australia vs Egipto
-  // OCTAVOS DE FINAL — 5 al 8 jul
-  {id:'r16_01',round:'R16',date:'2026-07-05',time:'16:00',hs:{t:'ko',m:'r32_02'},as:{t:'ko',m:'r32_05'}},   // W(Alem/Par) vs W(CdM/Nor)
-  {id:'r16_02',round:'R16',date:'2026-07-05',time:'20:00',hs:{t:'ko',m:'r32_01'},as:{t:'ko',m:'r32_03'}},   // W(Can/SA) vs W(Bra/Jap)
-  {id:'r16_03',round:'R16',date:'2026-07-06',time:'16:00',hs:{t:'ko',m:'r32_04'},as:{t:'ko',m:'r32_06'}},   // W(PB/Mar) vs W(Fra/Sue)
-  {id:'r16_04',round:'R16',date:'2026-07-06',time:'20:00',hs:{t:'ko',m:'r32_07'},as:{t:'ko',m:'r32_08'}},   // W(Méx/Ecu) vs W(Ing/RDC)
-  {id:'r16_05',round:'R16',date:'2026-07-07',time:'16:00',hs:{t:'ko',m:'r32_11'},as:{t:'ko',m:'r32_12'}},   // W(Esp/Aut) vs W(Por/Cro)
-  {id:'r16_06',round:'R16',date:'2026-07-07',time:'20:00',hs:{t:'ko',m:'r32_09'},as:{t:'ko',m:'r32_10'}},   // W(Bel/Sen) vs W(EEU/Bos)
-  {id:'r16_07',round:'R16',date:'2026-07-08',time:'16:00',hs:{t:'ko',m:'r32_14'},as:{t:'ko',m:'r32_16'}},   // W(Col/Gha) vs W(Aus/Egi)
-  {id:'r16_08',round:'R16',date:'2026-07-08',time:'20:00',hs:{t:'ko',m:'r32_13'},as:{t:'ko',m:'r32_15'}},   // W(Sui/Alg) vs W(Arg/CabV)
-  // CUARTOS DE FINAL — 9 al 11 jul
-  {id:'qf_01',round:'QF',date:'2026-07-09',time:'16:00',hs:{t:'ko',m:'r16_01'},as:{t:'ko',m:'r16_02'}},
-  {id:'qf_02',round:'QF',date:'2026-07-09',time:'20:00',hs:{t:'ko',m:'r16_05'},as:{t:'ko',m:'r16_06'}},
-  {id:'qf_03',round:'QF',date:'2026-07-11',time:'16:00',hs:{t:'ko',m:'r16_03'},as:{t:'ko',m:'r16_04'}},
-  {id:'qf_04',round:'QF',date:'2026-07-11',time:'20:00',hs:{t:'ko',m:'r16_07'},as:{t:'ko',m:'r16_08'}},
+  {id:'r32_16',round:'R32',date:'2026-07-03',time:'15:00',hs:{t:'grp',g:'D',p:2},as:{t:'grp',g:'G',p:2}},  // 2°D vs 2°G = Australia vs Egipto
+  // OCTAVOS DE FINAL — 4 al 7 jul
+  {id:'r16_01',round:'R16',date:'2026-07-04',time:'14:00',hs:{t:'ko',m:'r32_02'},as:{t:'ko',m:'r32_05'}},   // W(Alem/Par) vs W(CdM/Nor)
+  {id:'r16_02',round:'R16',date:'2026-07-04',time:'18:00',hs:{t:'ko',m:'r32_01'},as:{t:'ko',m:'r32_03'}},   // W(Can/SA) vs W(Bra/Jap)
+  {id:'r16_03',round:'R16',date:'2026-07-05',time:'17:00',hs:{t:'ko',m:'r32_04'},as:{t:'ko',m:'r32_06'}},   // W(PB/Mar) vs W(Fra/Sue)
+  {id:'r16_04',round:'R16',date:'2026-07-05',time:'21:00',hs:{t:'ko',m:'r32_07'},as:{t:'ko',m:'r32_08'}},   // W(Méx/Ecu) vs W(Ing/RDC)
+  {id:'r16_05',round:'R16',date:'2026-07-06',time:'16:00',hs:{t:'ko',m:'r32_11'},as:{t:'ko',m:'r32_12'}},   // W(Esp/Aut) vs W(Por/Cro)
+  {id:'r16_06',round:'R16',date:'2026-07-06',time:'21:00',hs:{t:'ko',m:'r32_09'},as:{t:'ko',m:'r32_10'}},   // W(Bel/Sen) vs W(EEU/Bos)
+  {id:'r16_07',round:'R16',date:'2026-07-07',time:'13:00',hs:{t:'ko',m:'r32_14'},as:{t:'ko',m:'r32_16'}},   // W(Col/Gha) vs W(Aus/Egi)
+  {id:'r16_08',round:'R16',date:'2026-07-07',time:'17:00',hs:{t:'ko',m:'r32_13'},as:{t:'ko',m:'r32_15'}},   // W(Sui/Alg) vs W(Arg/CabV)
+  // CUARTOS DE FINAL — 9, 10 y 11 jul
+  {id:'qf_01',round:'QF',date:'2026-07-09',time:'17:00',hs:{t:'ko',m:'r16_01'},as:{t:'ko',m:'r16_02'}},
+  {id:'qf_02',round:'QF',date:'2026-07-10',time:'16:00',hs:{t:'ko',m:'r16_05'},as:{t:'ko',m:'r16_06'}},
+  {id:'qf_03',round:'QF',date:'2026-07-11',time:'18:00',hs:{t:'ko',m:'r16_03'},as:{t:'ko',m:'r16_04'}},
+  {id:'qf_04',round:'QF',date:'2026-07-11',time:'22:00',hs:{t:'ko',m:'r16_07'},as:{t:'ko',m:'r16_08'}},
   // SEMIFINALES — 14 y 15 jul
-  {id:'sf_01',round:'SF',date:'2026-07-14',time:'20:00',hs:{t:'ko',m:'qf_01'},as:{t:'ko',m:'qf_02'}},
-  {id:'sf_02',round:'SF',date:'2026-07-15',time:'20:00',hs:{t:'ko',m:'qf_03'},as:{t:'ko',m:'qf_04'}},
+  {id:'sf_01',round:'SF',date:'2026-07-14',time:'16:00',hs:{t:'ko',m:'qf_01'},as:{t:'ko',m:'qf_02'}},
+  {id:'sf_02',round:'SF',date:'2026-07-15',time:'16:00',hs:{t:'ko',m:'qf_03'},as:{t:'ko',m:'qf_04'}},
   // TERCER PUESTO — 18 jul
-  {id:'third',round:'3P',date:'2026-07-18',time:'20:00',hs:{t:'koL',m:'sf_01'},as:{t:'koL',m:'sf_02'}},
+  {id:'third',round:'3P',date:'2026-07-18',time:'18:00',hs:{t:'koL',m:'sf_01'},as:{t:'koL',m:'sf_02'}},
   // FINAL — 19 jul (MetLife Stadium, New Jersey)
-  {id:'final',round:'FIN',date:'2026-07-19',time:'20:00',hs:{t:'ko',m:'sf_01'},as:{t:'ko',m:'sf_02'}},
+  {id:'final',round:'FIN',date:'2026-07-19',time:'16:00',hs:{t:'ko',m:'sf_01'},as:{t:'ko',m:'sf_02'}},
 ];
 
 const ROUND_LABELS = {R32:'Ronda de 32',R16:'Octavos','QF':'Cuartos','SF':'Semifinales','3P':'Tercer Puesto','FIN':'Final'};
