@@ -576,7 +576,7 @@ function calcKOPts(pred, real, round) {
 
 function calcAllPts(uid) {
   const preds = uid === S.user?.uid ? S.myPreds : (S.allPreds[uid] || {});
-  const pts = {grp:0, grpBonus:0, r32:0, r32Bonus:0, r16:0, qf:0, sf:0, fin:0, sp:0, total:0};
+  const pts = {grp:0, grpBonus:0, r32:0, r32Bonus:0, r16:0, r16Bonus:0, qf:0, qfBonus:0, sf:0, sfBonus:0, fin:0, sp:0, total:0};
   
   // Group matches
   Object.keys(GROUPS).forEach(g => {
@@ -628,9 +628,9 @@ function calcAllPts(uid) {
     const advBonus = (m.round!=='FIN'&&m.round!=='3P'&&predSide!=='?'&&realSide!=='?'&&predSide===realSide)?1:0;
     switch(m.round) {
       case 'R32': pts.r32 += p; pts.r32Bonus += advBonus; break;
-      case 'R16': pts.r16 += p + advBonus; break;
-      case 'QF': pts.qf += p + advBonus; break;
-      case 'SF': pts.sf += p + advBonus; break;
+      case 'R16': pts.r16 += p; pts.r16Bonus += advBonus; break;
+      case 'QF': pts.qf += p; pts.qfBonus += advBonus; break;
+      case 'SF': pts.sf += p; pts.sfBonus += advBonus; break;
       case 'FIN': pts.fin += p; break;
     }
   });
@@ -656,7 +656,7 @@ function calcAllPts(uid) {
     });
   }
 
-  pts.total = pts.grp + pts.grpBonus + pts.r32 + pts.r32Bonus + pts.r16 + pts.qf + pts.sf + pts.fin + pts.sp;
+  pts.total = pts.grp + pts.grpBonus + pts.r32 + pts.r32Bonus + pts.r16 + pts.r16Bonus + pts.qf + pts.qfBonus + pts.sf + pts.sfBonus + pts.fin + pts.sp;
   return pts;
 }
 
@@ -1086,8 +1086,11 @@ function renderRanking() {
         <th title="Ronda 32">R32</th>
         <th title="Bonus avance R32">+R32</th>
         <th title="Octavos">OCT</th>
+        <th title="Bonus avance OCT">+OCT</th>
         <th title="Cuartos">CTO</th>
+        <th title="Bonus avance CTO">+CTO</th>
         <th title="Semis">SF</th>
+        <th title="Bonus avance SF">+SF</th>
         <th title="Final">FIN</th>
         <th class="total-col">Total</th>
       </tr></thead>
@@ -1100,8 +1103,11 @@ function renderRanking() {
         <td>${r.pts.r32}</td>
         <td>${r.pts.r32Bonus}</td>
         <td>${r.pts.r16}</td>
+        <td>${r.pts.r16Bonus}</td>
         <td>${r.pts.qf}</td>
+        <td>${r.pts.qfBonus}</td>
         <td>${r.pts.sf}</td>
+        <td>${r.pts.sfBonus}</td>
         <td>${r.pts.fin}</td>
         <td class="total-col">${r.pts.total}</td>
       </tr>`).join('')}</tbody>
