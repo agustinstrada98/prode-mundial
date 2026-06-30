@@ -560,10 +560,24 @@ function calcGroupPts(pred, real) {
   if(getSign(ph,pa)===getSign(rh,ra)) return 1;
   return 0;
 }
+// Devuelve el marcador en tiempo reglamentario (resta penales si los hay)
+function realNTScore(real) {
+  let rh=parseInt(real.h), ra=parseInt(real.a);
+  if (real.ph!==undefined && !isNaN(parseInt(real.ph))) { rh-=parseInt(real.ph); ra-=parseInt(real.pa); }
+  return {rh, ra};
+}
 function calcKOPts(pred, real, round) {
   if (!pred||!real) return 0;
-  const ph=parseInt(pred.h),pa=parseInt(pred.a),rh=parseInt(real.h),ra=parseInt(real.a);
+  const ph=parseInt(pred.h), pa=parseInt(pred.a);
+  const {rh, ra} = realNTScore(real);
   if([ph,pa,rh,ra].some(isNaN)) return 0;
+  // Empate en tiempo reglamentario → puntuación igual que grupos (3pts exacto, 1pt signo)
+  if (rh===ra) {
+    if(ph===rh&&pa===ra) return 3;
+    if(getSign(ph,pa)===0) return 1;
+    return 0;
+  }
+  // Resultado definido en tiempo reglamentario → puntuación según ronda
   if (round==='R32') {
     if(ph===rh&&pa===ra) return 3;
     if(getSign(ph,pa)===getSign(rh,ra)) return 1;
@@ -619,7 +633,7 @@ function calcAllPts(uid) {
     }
     let realSide = '?';
     if (real.h!==undefined&&real.h!=='') {
-      const rrh=parseInt(real.h),rra=parseInt(real.a);
+      const {rh:rrh,ra:rra} = realNTScore(real);
       if(!isNaN(rrh)&&!isNaN(rra)) {
         if(rrh!==rra) realSide = rrh>rra?'h':'a';
         else { const rph=parseInt(real.ph),rpa=parseInt(real.pa); realSide=(!isNaN(rph)&&!isNaN(rpa))?(rph>rpa?'h':'a'):'?'; }
@@ -1008,7 +1022,7 @@ function renderKOPreds() {
           ${aDiff&&!locked?`<span class="was-pred">(pred: ${shortTeam(aPred)})</span>`:''}
           <span class="name ${S.phase.groupsDone&&aReal?'text-green':'text-blue'}">${shortTeam(aName)}</span>${flag(aName)}
         </div>
-        ${hasReal?`<span class="real-score">${real.h}-${real.a}</span>`:`<span class="match-date">${fmtDate(m.date)} ${m.time}${locked&&!hasReal?' 🔒':''}</span>`}
+        ${hasReal?`<span class="real-score">${(()=>{const {rh,ra}=realNTScore(real);return `${rh}-${ra}${real.ph!==undefined?` (p:${real.ph}-${real.pa})`:''}`;})()} </span>`:`<span class="match-date">${fmtDate(m.date)} ${m.time}${locked&&!hasReal?' 🔒':''}</span>`}
         ${hasReal&&pred.h!==undefined?`<span class="result-badge ${pts>=5||pts===3?'badge-exact':pts>=2||pts===1?'badge-sign':'badge-pts'}">${pts}pts</span>`:''}
       </div>
       ${isDraw&&m.round!=='3P'?`<div class="pen-wrap" style="display:flex;align-items:center;gap:8px;padding:4px 0 4px 8px;font-size:12px;color:var(--text2)">
