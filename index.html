@@ -1008,7 +1008,7 @@ function renderKOPreds() {
           ${aDiff&&!locked?`<span class="was-pred">(pred: ${shortTeam(aPred)})</span>`:''}
           <span class="name ${S.phase.groupsDone&&aReal?'text-green':'text-blue'}">${shortTeam(aName)}</span>${flag(aName)}
         </div>
-        ${hasReal?`<span class="real-score">${real.h}-${real.a}${real.ph!==undefined?` (${real.ph}-${real.pa} p)`:''}</span>`:`<span class="match-date">${fmtDate(m.date)} ${m.time}${locked&&!hasReal?' 🔒':''}</span>`}
+        ${hasReal?`<span class="real-score">${real.h}-${real.a}</span>`:`<span class="match-date">${fmtDate(m.date)} ${m.time}${locked&&!hasReal?' 🔒':''}</span>`}
         ${hasReal&&pred.h!==undefined?`<span class="result-badge ${pts>=5||pts===3?'badge-exact':pts>=2||pts===1?'badge-sign':'badge-pts'}">${pts}pts</span>`:''}
       </div>
       ${isDraw&&m.round!=='3P'?`<div class="pen-wrap" style="display:flex;align-items:center;gap:8px;padding:4px 0 4px 8px;font-size:12px;color:var(--text2)">
