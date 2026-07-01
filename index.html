@@ -1381,16 +1381,18 @@ function renderAdminPreds() {
       const real = S.real.ko[m.id];
       const hName = S.phase.groupsDone ? (resolveSlot(m.hs, true, null)||'?') : resolveSlot(m.hs, false, {});
       const aName = S.phase.groupsDone ? (resolveSlot(m.as, true, null)||'?') : resolveSlot(m.as, false, {});
-      const realStr = real?.h !== undefined ? `${real.h}-${real.a}${real.ph!==undefined?` (p:${real.ph}-${real.pa})`:''}` : '—';
+      const nt = real ? realNTScore(real) : null;
+      const realStr = nt ? `${nt.rh}-${nt.ra}${real.ph!==undefined?` (p:${real.ph}-${real.pa})`:''}` : '—';
       html += `<tr>
         <td style="${tdLeft}">${shortTeam(hName)} vs ${shortTeam(aName)}<br><span style="font-size:10px;color:var(--text3)">${fmtDate(m.date)} ${m.time}</span></td>
         <td style="${tdStyle};font-weight:600;color:var(--green)">${realStr}</td>
         ${uids.map(uid => {
           const pred = ((S.allPreds[uid]||{}).ko||{})[m.id];
           if (!pred || pred.h === undefined || pred.h === '') return `<td style="${tdStyle};color:var(--text3)">—</td>`;
-          const pStr = `${pred.h}-${pred.a}`;
-          const correct = real && String(pred.h)===String(real.h) && String(pred.a)===String(real.a);
-          const sign = real && !correct && ((+pred.h>+pred.a&&+real.h>+real.a)||(+pred.h<+pred.a&&+real.h<+real.a)||(+pred.h===+pred.a&&+real.h===+real.a));
+          const ph=+pred.h, pa=+pred.a;
+          const pStr = `${ph}-${pa}`;
+          const correct = nt && ph===nt.rh && pa===nt.ra;
+          const sign = nt && !correct && getSign(ph,pa)===getSign(nt.rh,nt.ra);
           const advStr = pred.adv ? ` →${pred.adv==='h'?shortTeam(hName):shortTeam(aName)}` : '';
           const color = correct ? 'var(--green)' : sign ? 'var(--yellow,#e3b341)' : 'var(--text)';
           return `<td style="${tdStyle};color:${color};font-weight:${correct?'700':'400'}">${pStr}${advStr}</td>`;
