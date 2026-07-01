@@ -574,7 +574,7 @@ function calcKOPts(pred, real, round) {
   // Empate en tiempo reglamentario → puntuación igual que grupos (3pts exacto, 1pt signo)
   if (rh===ra) {
     if(ph===rh&&pa===ra) return 3;
-    if(getSign(ph,pa)===0) return 1;
+    if(getSign(ph,pa)==='D') return 1;
     return 0;
   }
   // Resultado definido en tiempo reglamentario → puntuación según ronda
